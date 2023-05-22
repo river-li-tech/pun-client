@@ -61,7 +61,7 @@ namespace Com.MyCompany.MyGame
                 return;
             }
 
-            Debug.LogFormat("PhotonNetwork : Loading Level : {0}", PhotonNetwork.CurrentRoom.PlayerCount);
+            //Debug.LogFormat("PhotonNetwork : Loading Level : {0}", PhotonNetwork.CurrentRoom.PlayerCount);
             //PhotonNetwork.LoadLevel("Room for " + PhotonNetwork.CurrentRoom.PlayerCount);
             PhotonNetwork.LoadLevel("Room");
         }
@@ -71,13 +71,6 @@ namespace Com.MyCompany.MyGame
         public override void OnPlayerEnteredRoom(Player other)
         {
             Debug.LogFormat("OnPlayerEnteredRoom() {0}", other.NickName); // not seen if you're the player connecting
-
-            if (PhotonNetwork.IsMasterClient)
-            {
-                Debug.LogFormat("OnPlayerEnteredRoom IsMasterClient {0}",
-                    PhotonNetwork.IsMasterClient); // called before OnPlayerLeftRoom
-                LoadArena();
-            }
         }
 
         public override void OnPlayerLeftRoom(Player other)

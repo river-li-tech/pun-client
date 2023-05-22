@@ -163,18 +163,14 @@ namespace Com.MyCompany.MyGame
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.F))
+            if (Input.GetKeyDown(KeyCode.V))
             {
-                UnityEngine.Debug.Log("fire");
-
-
-
-
+                CreateBall();
             }
 
             if (Input.GetKeyDown(KeyCode.B))
             {
-                UnityEngine.Debug.Log("bomb");
+                CreateBomb();
             }
         }
 
@@ -216,13 +212,33 @@ namespace Com.MyCompany.MyGame
 
         #endregion
 
-        #region bomb
+        #region networked object
         private void CreateBomb()
         {
-            GameObject bombObj = PhotonNetwork.InstantiateRoomObject("Bomb", this.transform.position, Quaternion.identity);
+            GameObject obj = PhotonNetwork.Instantiate("Bomb", this.transform.position + new Vector3(0, 2.5f, 0), Quaternion.identity);
+            if (obj != null)
+            {
+                BombLogic objLogic = obj.GetComponent<BombLogic>();
+                if (objLogic != null)
+                {
+                    Vector3 force = this.transform.forward * 10.0f;
+                    objLogic.ThrowAway(force);
+                }
+            }
+        }
 
-
-
+        private void CreateBall()
+        {
+            GameObject obj = PhotonNetwork.InstantiateRoomObject("Ball", this.transform.position + new Vector3(0, 2.5f, 0), Quaternion.identity);
+            if (obj != null)
+            {
+                BallLogic objLogic = obj.GetComponent<BallLogic>();
+                if (objLogic != null)
+                {
+                    Vector3 force = this.transform.forward * 5.0f;
+                    objLogic.ThrowAway(force);
+                }
+            }
         }
         #endregion
 

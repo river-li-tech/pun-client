@@ -75,9 +75,6 @@ namespace Com.MyCompany.MyGame
         {
             Debug.Log("PUN Basics Tutorial/Launcher: OnJoinedRoom() called by PUN. Now this client is in a room.");
 
-            // 测试：玩家一旦进入立即切换为master
-
-            PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
             // #Critical: We only load if we are the first player, else we rely on `PhotonNetwork.AutomaticallySyncScene` to sync our instance scene.
             if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
             {
@@ -85,7 +82,7 @@ namespace Com.MyCompany.MyGame
 
                 // #Critical
                 // Load the Room Level.
-                PhotonNetwork.LoadLevel("Room for 1");
+                PhotonNetwork.LoadLevel("Room");
             }
         }
         #endregion
