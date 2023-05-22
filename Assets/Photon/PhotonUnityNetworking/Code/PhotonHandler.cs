@@ -246,7 +246,7 @@ namespace Photon.Pun
 
         public void OnCreatedRoom()
         {
-            UnityEngine.Debug.LogFormat("===> Client:{0} OnCreatedRoom amMasterClient:{1}",
+            PhotonLog.LogFormat("===> Client:{0} OnCreatedRoom amMasterClient:{1}",
                PhotonNetwork.LocalPlayer!= null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
                 PhotonNetwork.IsMasterClient);
 
@@ -263,7 +263,7 @@ namespace Photon.Pun
 
         public void OnMasterClientSwitched(Player newMasterClient)
         {
-            UnityEngine.Debug.LogFormat("===> Client:{0} OnMasterClientSwitched amMasterClient:{1}", 
+            PhotonLog.LogFormat("===> Client:{0} OnMasterClientSwitched amMasterClient:{1}", 
                PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
                 PhotonNetwork.IsMasterClient);
 
@@ -290,7 +290,7 @@ namespace Photon.Pun
 
         public void OnJoinedRoom()
         {
-            UnityEngine.Debug.LogFormat("===> Client:{0} OnJoinedRoom amMasterClient:{1}, amRejoiningMaster:{2}",
+            PhotonLog.LogFormat("===> Client:{0} OnJoinedRoom amMasterClient:{1}, amRejoiningMaster:{2}",
                PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
                 PhotonNetwork.IsMasterClient,
                 PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount > 1);
@@ -332,7 +332,7 @@ namespace Photon.Pun
 
         public void OnLeftRoom()
         {
-            UnityEngine.Debug.LogFormat("===> Client{0} OnLeftRoom amMasterClient:{1}", 
+            PhotonLog.LogFormat("===> Client{0} OnLeftRoom amMasterClient:{1}", 
                 PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1, 
                 PhotonNetwork.IsMasterClient);
 
@@ -347,7 +347,7 @@ namespace Photon.Pun
             // what may happen is that the Master Client disconnects locally and uses ReconnectAndRejoin before anyone (including the server) notices.
 
             bool amMasterClient = PhotonNetwork.IsMasterClient;
-            UnityEngine.Debug.LogFormat("===> Client:{0} OnPlayerEnteredRoom newPlayer.ActorNr:{1} amMasterClient:{2}",
+            PhotonLog.LogFormat("===> Client:{0} OnPlayerEnteredRoom newPlayer.ActorNr:{1} amMasterClient:{2}",
                PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
                 newPlayer.ActorNumber, amMasterClient);
  
@@ -388,7 +388,7 @@ namespace Photon.Pun
             int leavingPlayerId = otherPlayer.ActorNumber;
             bool isInactive = otherPlayer.IsInactive;
 
-            UnityEngine.Debug.LogFormat("===> Client:{0} OnPlayerLeftRoom leavingPlayerId:{1} isInactive:{2}", 
+            PhotonLog.LogFormat("===> Client:{0} OnPlayerLeftRoom leavingPlayerId:{1} isInactive:{2}", 
                 PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
                 leavingPlayerId, isInactive);
 

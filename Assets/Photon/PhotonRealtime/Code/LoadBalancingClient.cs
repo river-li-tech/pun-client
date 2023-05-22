@@ -2622,7 +2622,7 @@ namespace Photon.Realtime
         /// <param name="operationResponse">Contains the server's response for an operation called by this peer.</param>
         public virtual void OnOperationResponse(OperationResponse operationResponse)
         {
-            //UnityEngine.Debug.LogFormat("==>OnOperationResponse operationResponse:{0}", operationResponse.ToString());
+            //PhotonLog.LogFormat("==>OnOperationResponse operationResponse:{0}", operationResponse.ToString());
 
             // if (operationResponse.ReturnCode != 0) this.DebugReturn(DebugLevel.ERROR, operationResponse.ToStringFull());
 
@@ -3186,7 +3186,7 @@ namespace Photon.Realtime
             int actorNr = photonEvent.Sender;
             Player originatingPlayer = (this.CurrentRoom != null) ? this.CurrentRoom.GetPlayer(actorNr) : null;
 
-            //UnityEngine.Debug.LogFormat("==>LoadBalancingClient OnEvent photonEvent:{0}", photonEvent.ToStringFull());
+            //PhotonLog.LogFormat("==>LoadBalancingClient OnEvent photonEvent:{0}", photonEvent.ToStringFull());
 
             switch (photonEvent.Code)
             {
@@ -3270,7 +3270,7 @@ namespace Photon.Realtime
                         int newMaster = (int)photonEvent[ParameterCode.MasterClientId];
                         if (newMaster != 0)
                         {
-                            UnityEngine.Debug.LogFormat("===> Client{0} notify masterClientId:{1}", 
+                            PhotonLog.LogFormat("===> Client{0} notify masterClientId:{1}", 
                                 LocalPlayer!=null?LocalPlayer.ActorNumber:-1, newMaster);
 
                             this.CurrentRoom.masterClientId = newMaster;

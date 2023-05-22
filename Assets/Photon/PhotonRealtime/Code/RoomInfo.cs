@@ -244,7 +244,7 @@ namespace Photon.Realtime
             if (propertiesToCache.ContainsKey(GamePropertyKey.MasterClientId))
             {
                 this.masterClientId = (int)propertiesToCache[GamePropertyKey.MasterClientId];
-                UnityEngine.Debug.LogFormat("===> notify RoomInfo masterClientId:{0}", 
+                PhotonLog.LogFormat("===> notify RoomInfo masterClientId:{0}", 
                     this.masterClientId);
             }
 

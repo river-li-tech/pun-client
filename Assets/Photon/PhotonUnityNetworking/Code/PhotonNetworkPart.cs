@@ -937,7 +937,7 @@ namespace Photon.Pun
         /// </summary>
         internal static void OwnershipUpdate(int[] viewOwnerPairs, int targetActor = -1)
         {
-            UnityEngine.Debug.LogFormat("===> Client:{0} Raise OwnershipUpdate targetActor:{1}", 
+            PhotonLog.LogFormat("===> Client:{0} Raise OwnershipUpdate targetActor:{1}", 
                 PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
                 targetActor);
 
@@ -2194,7 +2194,7 @@ namespace Photon.Pun
             {
                 originatingPlayer = NetworkingClient.CurrentRoom.GetPlayer(actorNr);
             }
-            //UnityEngine.Debug.LogFormat("==>PhotonNetwork OnEvent photonEvent:{0}", photonEvent.ToStringFull());
+            //PhotonLog.LogFormat("==>PhotonNetwork OnEvent photonEvent:{0}", photonEvent.ToStringFull());
 
             switch (photonEvent.Code)
             {
@@ -2307,7 +2307,7 @@ namespace Photon.Pun
                         int requestedViewId = requestValues[0];
                         int requestedFromOwnerId = requestValues[1];
 
-                        UnityEngine.Debug.LogFormat("===> Client:{0} OwnershipRequest requestedViewId:{1} requestedFromOwnerId:{2}",
+                        PhotonLog.LogFormat("===> Client:{0} OwnershipRequest requestedViewId:{1} requestedFromOwnerId:{2}",
                             PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
                             requestedViewId, requestedFromOwnerId);
 
@@ -2371,7 +2371,7 @@ namespace Photon.Pun
                         int requestedViewId = transferViewToUserID[0];
                         int newOwnerId = transferViewToUserID[1];
 
-                        UnityEngine.Debug.LogFormat("==> Client:{0} OwnershipTransfer requestedViewId:{1} newOwnerId:{2}",
+                        PhotonLog.LogFormat("==> Client:{0} OwnershipTransfer requestedViewId:{1} newOwnerId:{2}",
                             PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
                             requestedViewId, newOwnerId);
 
@@ -2418,7 +2418,7 @@ namespace Photon.Pun
 
                 case PunEvent.OwnershipUpdate:
                     {
-                        UnityEngine.Debug.LogFormat("==> Client:{0} OwnershipUpdate",
+                        PhotonLog.LogFormat("==> Client:{0} OwnershipUpdate",
                             PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1
                             );
 
