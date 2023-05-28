@@ -7,12 +7,19 @@ using UnityEngine;
 
 namespace Com.MyCompany.MyGame
 {
+    public enum JoinRoomType
+    {
+        JOIN = 0,
+        REJOIN = 1,
+    }
+
     public class Launcher : MonoBehaviourPunCallbacks
     {
         [SerializeField]
         private byte maxPlayerPerRoom = 4;
         private string gameVersion = "1";
         private bool isConnecting = false;
+        JoinRoomType joinType = JoinRoomType.JOIN;
 
         [SerializeField] 
         private GameObject controlPanel;
@@ -37,12 +44,31 @@ namespace Com.MyCompany.MyGame
             
             if (PhotonNetwork.IsConnected)
             {
-                PhotonNetwork.JoinRandomRoom();
+                RoomOptions ops = new RoomOptions();
+                ops.PlayerTtl = 60000;
+                PhotonNetwork.JoinOrCreateRoom("river", ops, TypedLobby.Default);
             }
             else
             {
                 isConnecting = PhotonNetwork.ConnectUsingSettings();
                 PhotonNetwork.GameVersion = gameVersion;
+                joinType = JoinRoomType.JOIN;
+            }
+        }
+
+        public void Rejoin()
+        {
+            progressLabel.SetActive(true);
+            controlPanel.SetActive(false);
+            if (PhotonNetwork.IsConnected)
+            {
+                PhotonNetwork.RejoinRoom("river");
+            }
+            else
+            {
+                isConnecting = PhotonNetwork.Reconnect();
+                PhotonNetwork.GameVersion = gameVersion;
+                joinType = JoinRoomType.REJOIN;
             }
         }
 
@@ -52,7 +78,14 @@ namespace Com.MyCompany.MyGame
             Debug.Log("PUN Basics Tutorial/Launcher: OnConnectedToMaster() was called by PUN");
             if (isConnecting)
             {
-                PhotonNetwork.JoinRandomRoom();
+                if (joinType == JoinRoomType.JOIN)
+                {
+                    RoomOptions ops = new RoomOptions();
+                    PhotonNetwork.JoinOrCreateRoom("river", ops, TypedLobby.Default);
+                } else {
+                    PhotonNetwork.RejoinRoom("river");
+                }
+
                 isConnecting = false;
             }
         }

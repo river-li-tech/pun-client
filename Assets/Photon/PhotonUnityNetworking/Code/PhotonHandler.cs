@@ -270,7 +270,7 @@ namespace Photon.Pun
             var views = PhotonNetwork.PhotonViewCollection;
             foreach (var view in views)
             {
-                if (view.IsRoomView)
+                if (view.IsRoomView && view.Controller != null && view.Controller.IsInactive)
                 {
                     view.OwnerActorNr= newMasterClient.ActorNumber;
                     view.ControllerActorNr = newMasterClient.ActorNumber;

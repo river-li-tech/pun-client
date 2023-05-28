@@ -53,6 +53,11 @@ namespace Com.MyCompany.MyGame
             PhotonNetwork.LeaveRoom();
         }
 
+        public void SwitchMaster()
+        {
+            PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
+        }
+
         void LoadArena()
         {
             if (!PhotonNetwork.IsMasterClient)

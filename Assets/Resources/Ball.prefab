@@ -149,7 +149,7 @@ MonoBehaviour:
   Group: 0
   prefixField: -1
   Synchronization: 3
-  OwnershipTransfer: 0
+  OwnershipTransfer: 1
   observableSearch: 2
   ObservedComponents:
   - {fileID: 7533560743882487854}
@@ -168,4 +168,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1af48413c3215eb48af276193f9b1fef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_duration: 10
+  m_duration: 600

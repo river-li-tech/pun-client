@@ -163,7 +163,7 @@ namespace Com.MyCompany.MyGame
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.V))
+            if (Input.GetKeyDown(KeyCode.L))
             {
                 CreateBall();
             }
