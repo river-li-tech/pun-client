@@ -267,15 +267,16 @@ namespace Photon.Pun
                PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
                 PhotonNetwork.IsMasterClient);
 
-            var views = PhotonNetwork.PhotonViewCollection;
-            foreach (var view in views)
-            {
-                if (view.IsRoomView && view.Controller != null && view.Controller.IsInactive)
-                {
-                    view.OwnerActorNr= newMasterClient.ActorNumber;
-                    view.ControllerActorNr = newMasterClient.ActorNumber;
-                }
-            }
+            //切换master不做任何所有权转移
+            //var views = PhotonNetwork.PhotonViewCollection;
+            //foreach (var view in views)
+            //{
+            //    if (view.IsRoomView)
+            //    {
+            //        view.OwnerActorNr= newMasterClient.ActorNumber;
+            //        view.ControllerActorNr = newMasterClient.ActorNumber;
+            //    }
+            //}
         }
 
         public void OnFriendListUpdate(System.Collections.Generic.List<FriendInfo> friendList) { }
@@ -385,6 +386,7 @@ namespace Photon.Pun
         {
             var views = PhotonNetwork.PhotonViewCollection;
 
+            bool amMasterClient = PhotonNetwork.IsMasterClient;
             int leavingPlayerId = otherPlayer.ActorNumber;
             bool isInactive = otherPlayer.IsInactive;
 
@@ -392,6 +394,7 @@ namespace Photon.Pun
                 PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
                 leavingPlayerId, isInactive);
 
+            //玩家离开触发的所有权转移由各个客户端各自执行，不需要广播
             // SOFT DISCONNECT: A player has timed out to the relay but has not yet exceeded PlayerTTL and may reconnect.
             // Master will take control of this objects until the player hard disconnects, or returns.
             if (isInactive)
@@ -402,7 +405,6 @@ namespace Photon.Pun
                     if (view.ControllerActorNr == leavingPlayerId)
                         view.ControllerActorNr = PhotonNetwork.MasterClient.ActorNumber;
                 }
-
             }
             // HARD DISCONNECT: Player permanently removed. Remove that actor as owner for all items they created (Unless AutoCleanUp is false)
             else

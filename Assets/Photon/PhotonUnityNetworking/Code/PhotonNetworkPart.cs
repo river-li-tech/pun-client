@@ -23,6 +23,7 @@ namespace Photon.Pun
 
     using Hashtable = ExitGames.Client.Photon.Hashtable;
     using SupportClassPun = ExitGames.Client.Photon.SupportClass;
+    using Codice.CM.Common.Merge;
 
     public static partial class PhotonNetwork
     {
@@ -940,6 +941,11 @@ namespace Photon.Pun
             PhotonLog.LogFormat("===> Client:{0} Raise OwnershipUpdate targetActor:{1}", 
                 PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
                 targetActor);
+            for (int idx = 0; idx < viewOwnerPairs.Length; idx = idx + 2) { 
+                PhotonLog.LogFormat("===> Client:{0} OwnershipUpdate ViewID:{1} Owner:{2}", 
+                    PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
+                    viewOwnerPairs[idx], viewOwnerPairs[idx + 1]);
+            }
 
             RaiseEventOptions opts;
             if (targetActor == -1)
@@ -2433,6 +2439,7 @@ namespace Photon.Pun
                             i++;
                             int newOwnerId = viewOwnerPair[i];
 
+          
                             PhotonView view = GetPhotonView(viewId);
                             if (view == null)
                             {
@@ -2443,6 +2450,10 @@ namespace Photon.Pun
 
                                 continue;
                             }
+
+                            PhotonLog.LogFormat("==> Client:{0} OwnershipUpdate ViewID{1} Owner From:{2} To:{3}",
+                                          PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
+                                          viewId, view.OwnerActorNr, newOwnerId);
 
                             Player prevOwner = view.Owner;
                             Player newOwner = CurrentRoom.GetPlayer(newOwnerId, true);

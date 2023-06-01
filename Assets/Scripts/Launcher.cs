@@ -44,9 +44,7 @@ namespace Com.MyCompany.MyGame
             
             if (PhotonNetwork.IsConnected)
             {
-                RoomOptions ops = new RoomOptions();
-                ops.PlayerTtl = 60000;
-                PhotonNetwork.JoinOrCreateRoom("river", ops, TypedLobby.Default);
+                JoinRoom();
             }
             else
             {
@@ -62,7 +60,7 @@ namespace Com.MyCompany.MyGame
             controlPanel.SetActive(false);
             if (PhotonNetwork.IsConnected)
             {
-                PhotonNetwork.RejoinRoom("river");
+                RejoinRoom();
             }
             else
             {
@@ -70,6 +68,18 @@ namespace Com.MyCompany.MyGame
                 PhotonNetwork.GameVersion = gameVersion;
                 joinType = JoinRoomType.REJOIN;
             }
+        }
+
+        private void JoinRoom()
+        {
+            RoomOptions ops = new RoomOptions();
+            ops.PlayerTtl = 300000;
+            PhotonNetwork.JoinOrCreateRoom("river", ops, TypedLobby.Default);
+        }
+
+        private void RejoinRoom()
+        {
+            PhotonNetwork.RejoinRoom("river");
         }
 
         #region Pun Callbacks
@@ -80,10 +90,9 @@ namespace Com.MyCompany.MyGame
             {
                 if (joinType == JoinRoomType.JOIN)
                 {
-                    RoomOptions ops = new RoomOptions();
-                    PhotonNetwork.JoinOrCreateRoom("river", ops, TypedLobby.Default);
+                    JoinRoom();
                 } else {
-                    PhotonNetwork.RejoinRoom("river");
+                    RejoinRoom();
                 }
 
                 isConnecting = false;
