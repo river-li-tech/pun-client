@@ -372,17 +372,19 @@ namespace Photon.Pun
             //var prevController = this.controller;
 
             // objects without controller and room objects (ownerId 0) check if controller update is needed
-            if (this.controllerActorNr == 0 || this.OwnerActorNr == 0 || this.Owner == null || this.Owner.IsInactive)
+            if (this.ControllerActorNr <= 0 || this.Controller == null || this.Controller.IsInactive)
             {
-                var masterclient = PhotonNetwork.MasterClient;
-                this.ControllerActorNr = masterclient == null ? -1 : masterclient.ActorNumber;
-            }
-            else
-            {
-                this.ControllerActorNr = this.OwnerActorNr;
+                if (this.OwnerActorNr > 0 && this.Owner != null && !this.Owner.IsInactive)
+                {
+                    this.ControllerActorNr = this.OwnerActorNr;
+                }
+                else
+                {
+                    var masterclient = PhotonNetwork.MasterClient;
+                    this.ControllerActorNr = masterclient == null || masterclient.IsInactive ? 0 : masterclient.ActorNumber;
+                }
             }
         }
-
 
         public void OnPreNetDestroy(PhotonView rootView)
         {

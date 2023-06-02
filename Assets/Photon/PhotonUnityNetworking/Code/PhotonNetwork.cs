@@ -524,6 +524,18 @@ namespace Photon.Pun
 
         private static bool automaticallySyncScene = false;
 
+        public static bool EnableViewSynchronization
+        {
+            get
+            {
+                return NetworkingClient.EnableViewSynchronization;
+            }
+            set
+            {
+                NetworkingClient.EnableViewSynchronization = value;
+            }
+        }
+
         /// <summary>
         /// If enabled, the client will get a list of available lobbies from the Master Server.
         /// </summary>

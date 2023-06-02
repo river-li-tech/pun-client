@@ -299,35 +299,34 @@ namespace Photon.Pun
             if (PhotonNetwork.ViewCount == 0)
                 return;
 
-            var views = PhotonNetwork.PhotonViewCollection;
-
             bool amMasterClient = PhotonNetwork.IsMasterClient;
             bool amRejoiningMaster = amMasterClient && PhotonNetwork.CurrentRoom.PlayerCount > 1;
 
-            if (amRejoiningMaster)
-                reusableIntList.Clear();
-
             // If this is the master rejoining, reassert ownership of non-creator owners
+            var views = PhotonNetwork.PhotonViewCollection;
+            reusableIntList.Clear();
             foreach (var view in views)
             {
-                int viewOwnerId = view.OwnerActorNr;
-                int viewCreatorId = view.CreatorActorNr;
+                //重建本地控制权
+                view.RebuildControllerCache();
 
-                // on join / rejoin, assign control to either the Master Client (for room objects) or the owner (for anything else)
-                    view.RebuildControllerCache();
-
-                // Rejoining master should enforce its world view, and override any changes that happened while it was soft disconnected
+                //rejoin时master广播所有权和控制权信息
                 if (amRejoiningMaster)
-                    if (viewOwnerId != viewCreatorId)
-                    {
-                        reusableIntList.Add(view.ViewID);
-                        reusableIntList.Add(viewOwnerId);
-                    }
+                {
+                    reusableIntList.Add(view.ViewID);
+                    reusableIntList.Add(view.OwnerActorNr);
+                    reusableIntList.Add(view.ControllerActorNr);
+                }
             }
 
             if (amRejoiningMaster && reusableIntList.Count > 0)
             {
                 PhotonNetwork.OwnershipUpdate(reusableIntList.ToArray());
+            }
+
+            if (!amMasterClient)
+            {
+                PhotonNetwork.EnableViewSynchronization = false;
             }
         }
 
@@ -353,24 +352,19 @@ namespace Photon.Pun
                 newPlayer.ActorNumber, amMasterClient);
  
             var views = PhotonNetwork.PhotonViewCollection;
-            if (amMasterClient)
-            {
-                reusableIntList.Clear();
-            }
-
+            reusableIntList.Clear();
             foreach (var view in views)
             {
+                //重建本地控制权
                 view.RebuildControllerCache();  // all clients will potentially have to clean up owner and controller, if someone re-joins
 
                 // the master client notifies joining players of any non-creator ownership
+                //master负责同步所有权信息给newPlayer
                 if (amMasterClient)
                 {
-                    int viewOwnerId = view.OwnerActorNr;
-                    if (viewOwnerId != view.CreatorActorNr)
-                    {
-                        reusableIntList.Add(view.ViewID);
-                        reusableIntList.Add(viewOwnerId);
-                    }
+                    reusableIntList.Add(view.ViewID);
+                    reusableIntList.Add(view.OwnerActorNr);
+                    reusableIntList.Add(view.ControllerActorNr);
                 }
             }
 
@@ -379,14 +373,12 @@ namespace Photon.Pun
             {
                 PhotonNetwork.OwnershipUpdate(reusableIntList.ToArray(), newPlayer.ActorNumber);
             }
-
         }
 
         public void OnPlayerLeftRoom(Player otherPlayer)
         {
             var views = PhotonNetwork.PhotonViewCollection;
 
-            bool amMasterClient = PhotonNetwork.IsMasterClient;
             int leavingPlayerId = otherPlayer.ActorNumber;
             bool isInactive = otherPlayer.IsInactive;
 
@@ -394,7 +386,6 @@ namespace Photon.Pun
                 PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
                 leavingPlayerId, isInactive);
 
-            //玩家离开触发的所有权转移由各个客户端各自执行，不需要广播
             // SOFT DISCONNECT: A player has timed out to the relay but has not yet exceeded PlayerTTL and may reconnect.
             // Master will take control of this objects until the player hard disconnects, or returns.
             if (isInactive)
@@ -402,15 +393,17 @@ namespace Photon.Pun
                 foreach (var view in views)
                 {
                     // v2.27: changed from owner-check to controller-check
+                    //soft-disconnect模式下，将控制权临时托管给master
                     if (view.ControllerActorNr == leavingPlayerId)
+                    {
                         view.ControllerActorNr = PhotonNetwork.MasterClient.ActorNumber;
+                    }
                 }
             }
             // HARD DISCONNECT: Player permanently removed. Remove that actor as owner for all items they created (Unless AutoCleanUp is false)
             else
             {
                 bool autocleanup = PhotonNetwork.CurrentRoom.AutoCleanUp;
-
                 foreach (var view in views)
                 {
                     // Skip changing Owner/Controller for items that will be cleaned up.
@@ -418,9 +411,15 @@ namespace Photon.Pun
                         continue;
 
                     // Any views owned by the leaving player, default to null owner (which will become master controlled).
-                    if (view.OwnerActorNr == leavingPlayerId || view.ControllerActorNr == leavingPlayerId)
+                    if (view.OwnerActorNr == leavingPlayerId)
                     {
-                        view.OwnerActorNr = 0;
+                        //这里可能出现controller上最新数据丢失的问题
+                        //因为此处发生了controller的强行切换，但出现的可能性不高，除非恰好发生了master强行硬断开导致controller变化
+                        view.OwnerActorNr = PhotonNetwork.MasterClient.ActorNumber;
+                        view.ControllerActorNr = PhotonNetwork.MasterClient.ActorNumber;
+                    }
+                    else if (view.ControllerActorNr == leavingPlayerId)
+                    {
                         view.ControllerActorNr = PhotonNetwork.MasterClient.ActorNumber;
                     }
                 }

@@ -2438,7 +2438,8 @@ namespace Photon.Pun
                             int viewId = viewOwnerPair[i];
                             i++;
                             int newOwnerId = viewOwnerPair[i];
-
+                            i++;
+                            int newControllerId = viewOwnerPair[i];
           
                             PhotonView view = GetPhotonView(viewId);
                             if (view == null)
@@ -2451,15 +2452,16 @@ namespace Photon.Pun
                                 continue;
                             }
 
-                            PhotonLog.LogFormat("==> Client:{0} OwnershipUpdate ViewID{1} Owner From:{2} To:{3}",
+                            PhotonLog.LogFormat("==> Client:{0} OwnershipUpdate ViewID{1} Owner {2}->{3} Controller {4}->{5}",
                                           PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
-                                          viewId, view.OwnerActorNr, newOwnerId);
+                                          viewId, view.OwnerActorNr, newOwnerId, view.ControllerActorNr, newControllerId);
 
                             Player prevOwner = view.Owner;
                             Player newOwner = CurrentRoom.GetPlayer(newOwnerId, true);
+                            Player newController = CurrentRoom.GetPlayer(newControllerId, true);
 
                             view.OwnerActorNr= newOwnerId;
-                            view.ControllerActorNr = newOwnerId;
+                            view.ControllerActorNr = newControllerId;
 
                             reusablePVHashset.Add(view);
                             // If this produces an owner change locally, fire the OnOwnershipTransfered callbacks
@@ -2469,18 +2471,10 @@ namespace Photon.Pun
                             }
                         }
 
-                        // Initialize all views. Typically this is just fired on a new client after it joins a room and gets the first OwnershipUpdate from the Master.
-                        // This was moved from PhotonHandler OnJoinedRoom to here, to allow objects to retain controller = -1 until an controller is actually known.
-                        foreach (var view in PhotonViewCollection)
-                        {
-                            if (!reusablePVHashset.Contains(view))
-                                view.RebuildControllerCache();
-                        }
+                        PhotonNetwork.EnableViewSynchronization = true;
 
                         break;
                     }
-
-
             }
         }
 

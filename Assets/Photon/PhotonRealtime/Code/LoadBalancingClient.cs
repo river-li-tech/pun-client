@@ -576,6 +576,8 @@ namespace Photon.Realtime
         /// <summary>The lobby this client currently uses. Defined when joining a lobby or creating rooms</summary>
         public TypedLobby CurrentLobby { get; internal set; }
 
+        public bool EnableViewSynchronization = true;
+
         /// <summary>
         /// If enabled, the client will get a list of available lobbies from the Master Server.
         /// </summary>
