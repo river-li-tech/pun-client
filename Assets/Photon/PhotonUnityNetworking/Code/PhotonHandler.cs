@@ -296,11 +296,20 @@ namespace Photon.Pun
                 PhotonNetwork.IsMasterClient,
                 PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount > 1);
 
-            if (PhotonNetwork.ViewCount == 0)
-                return;
-
             bool amMasterClient = PhotonNetwork.IsMasterClient;
             bool amRejoiningMaster = amMasterClient && PhotonNetwork.CurrentRoom.PlayerCount > 1;
+
+            if (amMasterClient)
+            {
+                PhotonNetwork.EnableViewSynchronization = true;
+            }
+            else
+            {
+                PhotonNetwork.EnableViewSynchronization = false;
+            }
+
+            if (PhotonNetwork.ViewCount == 0)
+                return;
 
             // If this is the master rejoining, reassert ownership of non-creator owners
             var views = PhotonNetwork.PhotonViewCollection;
@@ -311,7 +320,7 @@ namespace Photon.Pun
                 view.RebuildControllerCache();
 
                 //rejoin时master广播所有权和控制权信息
-                if (amRejoiningMaster)
+                if (amRejoiningMaster && view.CreatorActorNr != view.OwnerActorNr)
                 {
                     reusableIntList.Add(view.ViewID);
                     reusableIntList.Add(view.OwnerActorNr);
@@ -322,11 +331,6 @@ namespace Photon.Pun
             if (amRejoiningMaster && reusableIntList.Count > 0)
             {
                 PhotonNetwork.OwnershipUpdate(reusableIntList.ToArray());
-            }
-
-            if (!amMasterClient)
-            {
-                PhotonNetwork.EnableViewSynchronization = false;
             }
         }
 
@@ -359,8 +363,8 @@ namespace Photon.Pun
                 view.RebuildControllerCache();  // all clients will potentially have to clean up owner and controller, if someone re-joins
 
                 // the master client notifies joining players of any non-creator ownership
-                //master负责同步所有权信息给newPlayer
-                if (amMasterClient)
+                //master负责同步所有权信息给newPlayer(除player网络对象）
+                if (amMasterClient && view.CreatorActorNr != view.OwnerActorNr)
                 {
                     reusableIntList.Add(view.ViewID);
                     reusableIntList.Add(view.OwnerActorNr);

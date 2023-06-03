@@ -927,10 +927,10 @@ namespace Photon.Pun
             PhotonNetwork.RaiseEventInternal(PunEvent.OwnershipRequest, new int[] { viewID, fromOwner }, SendToAllOptions, SendOptions.SendReliable);
         }
 
-        internal static void TransferOwnership(int viewID, int playerID)
+        internal static void TransferOwnership(int viewID, int playerID, bool exceptSelf = false)
         {
             //Debug.Log("TransferOwnership() view " + viewID + " to: " + playerID + " Time: " + Environment.TickCount % 1000);
-            PhotonNetwork.RaiseEventInternal(PunEvent.OwnershipTransfer, new int[] { viewID, playerID }, SendToAllOptions, SendOptions.SendReliable);
+            PhotonNetwork.RaiseEventInternal(PunEvent.OwnershipTransfer, new int[] { viewID, playerID }, exceptSelf ? SendToOthersOptions : SendToAllOptions, SendOptions.SendReliable);
         }
 
         /// <summary>
@@ -941,10 +941,11 @@ namespace Photon.Pun
             PhotonLog.LogFormat("===> Client:{0} Raise OwnershipUpdate targetActor:{1}", 
                 PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
                 targetActor);
-            for (int idx = 0; idx < viewOwnerPairs.Length; idx = idx + 2) { 
-                PhotonLog.LogFormat("===> Client:{0} OwnershipUpdate ViewID:{1} Owner:{2}", 
+            for (int idx = 0; idx < viewOwnerPairs.Length; idx = idx + 3) { 
+                PhotonLog.LogFormat("===> Client:{0} OwnershipUpdate ViewID:{1} Owner:{2} Controller:{3}", 
                     PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
-                    viewOwnerPairs[idx], viewOwnerPairs[idx + 1]);
+                    viewOwnerPairs[idx], viewOwnerPairs[idx + 1], viewOwnerPairs[idx + 2]
+                    );
             }
 
             RaiseEventOptions opts;
@@ -1647,7 +1648,7 @@ namespace Photon.Pun
                 PhotonView view = enumerator.Current.Value;
 
                 // a client only sends updates for active, synchronized PhotonViews that are under it's control (isMine)
-                if (view.Synchronization == ViewSynchronization.Off || view.IsMine == false || view.isActiveAndEnabled == false)
+                if (!PhotonNetwork.EnableViewSynchronization || view.Synchronization == ViewSynchronization.Off || view.IsMine == false || view.isActiveAndEnabled == false)
                 {
                     continue;
                 }
@@ -1713,7 +1714,7 @@ namespace Photon.Pun
         // the content created here is consumed by receivers in: ReadOnSerialize
         private static List<object> OnSerializeWrite(PhotonView view)
         {
-            if (view.Synchronization == ViewSynchronization.Off)
+            if (!PhotonNetwork.EnableViewSynchronization || view.Synchronization == ViewSynchronization.Off)
             {
                 return null;
             }
@@ -2200,7 +2201,7 @@ namespace Photon.Pun
             {
                 originatingPlayer = NetworkingClient.CurrentRoom.GetPlayer(actorNr);
             }
-            //PhotonLog.LogFormat("==>PhotonNetwork OnEvent photonEvent:{0}", photonEvent.ToStringFull());
+            PhotonLog.LogFormat("==>PhotonNetwork OnEvent photonEvent:{0}", photonEvent.ToStringFull());
 
             switch (photonEvent.Code)
             {
@@ -2336,14 +2337,21 @@ namespace Photon.Pun
                                 if (requestedFromOwnerId == currentPvOwnerId || (requestedFromOwnerId == 0 && currentPvOwnerId == MasterClient.ActorNumber) || currentPvOwnerId == 0)
                                 {
                                     // a takeover is successful automatically, if taken from current owner
-                                    Player prevOwner = requestedView.Owner;
-
-                                    requestedView.OwnerActorNr = actorNr;
-                                    requestedView.ControllerActorNr = actorNr;
-
-                                    if (PhotonNetwork.OnOwnershipTransferedEv != null)
+                                    //由当前controller来完成所有权转移，并广播给其它player
+                                    if (requestedView.ControllerActorNr == LocalPlayer.ActorNumber || 
+                                        ((requestedView.Controller == null || requestedView.Controller.IsInactive) && PhotonNetwork.IsMasterClient))
                                     {
-                                        PhotonNetwork.OnOwnershipTransferedEv(requestedView, prevOwner);
+                                        Player prevOwner = requestedView.Owner;
+
+                                        requestedView.OwnerActorNr = actorNr;
+                                        requestedView.ControllerActorNr = actorNr;
+
+                                        if (PhotonNetwork.OnOwnershipTransferedEv != null)
+                                        {
+                                            PhotonNetwork.OnOwnershipTransferedEv(requestedView, prevOwner);
+                                        }
+
+                                        PhotonNetwork.TransferOwnership(requestedView.ViewID, actorNr, true);
                                     }
                                 }
                                 else

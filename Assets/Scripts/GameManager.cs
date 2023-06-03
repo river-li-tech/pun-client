@@ -25,7 +25,7 @@ namespace Com.MyCompany.MyGame
             else
             {
                 Debug.LogFormat("We are Instantiating LocalPlayer from {0}", Application.loadedLevelName);
-                if (PlayerManager.LocalPlayerInstance == null)
+                if (PlayerManager.LocalPlayerInstance == null && Launcher.joinType != JoinRoomType.REJOIN)
                 {
                     Debug.LogFormat("We are Instantiating LocalPlayer from {0}", SceneManagerHelper.ActiveSceneName);
                     // we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
@@ -56,6 +56,104 @@ namespace Com.MyCompany.MyGame
         public void SwitchMaster()
         {
             PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
+        }
+
+        public void Disconnect()
+        {
+            PhotonNetwork.Disconnect();
+
+        }
+
+        public void RequestRoomObjOwner()
+        {
+            foreach (var roomObj in ObjManager.Instance.RoomObjs)
+            {
+                if (roomObj != null)
+                {
+                    PhotonView view = roomObj.GetComponent<PhotonView>();
+                    if (view != null)
+                    {
+                        view.RequestOwnership();
+                    }
+                    else
+                    {
+                        PhotonLog.Log("RequestRoomObjOwner roomObj view miss.");
+                    }
+                }
+                else
+                {
+                    PhotonLog.Log("RequestRoomObjOwner roomObj miss.");
+                }
+            }
+        }
+
+        public void TransferRoomObjOwner()
+        {
+            foreach (var roomObj in ObjManager.Instance.RoomObjs)
+            {
+                if (roomObj != null)
+                {
+                    PhotonView view = roomObj.GetComponent<PhotonView>();
+                    if (view != null)
+                    {
+                        view.TransferOwnership(PhotonNetwork.LocalPlayer);
+                    }
+                    else
+                    {
+                        PhotonLog.Log("TransferRoomObjOwner roomObj view miss.");
+                    }
+                }
+                else
+                {
+                    PhotonLog.Log("TransferRoomObjOwner roomObj miss.");
+                }
+            }
+        }
+
+        public void RequestPlayerObjOwner()
+        {
+            foreach (var playerObj in ObjManager.Instance.PlayerObjs)
+            {
+                if (playerObj != null)
+                {
+                    PhotonView view = playerObj.GetComponent<PhotonView>();
+                    if (view != null)
+                    {
+                        view.RequestOwnership();
+                    }
+                    else
+                    {
+                        PhotonLog.Log("RequestPlayerObjOwner roomObj view miss.");
+                    }
+                }
+                else
+                {
+                    PhotonLog.Log("RequestPlayerObjOwner roomObj miss.");
+                }
+            }
+        }
+
+        public void TransferPlayerObjOwner()
+        {
+            foreach (var playerObj in ObjManager.Instance.PlayerObjs)
+            {
+                if (playerObj != null)
+                {
+                    PhotonView view = playerObj.GetComponent<PhotonView>();
+                    if (view != null)
+                    {
+                        view.TransferOwnership(PhotonNetwork.LocalPlayer);
+                    }
+                    else
+                    {
+                        PhotonLog.Log("TransferPlayerObjOwner roomObj view miss.");
+                    }
+                }
+                else
+                {
+                    PhotonLog.Log("TransferPlayerObjOwner roomObj miss.");
+                }
+            }
         }
 
         void LoadArena()
@@ -89,7 +187,6 @@ namespace Com.MyCompany.MyGame
             //    LoadArena();
             //}
         }
-
         #endregion
     }
 }

@@ -6,7 +6,7 @@ using Photon.Pun.Demo.PunBasics;
 
 namespace Com.MyCompany.MyGame
 {
-    public class BombLogic : MonoBehaviourPunCallbacks
+    public class PlayerObjLogic : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback, IOnPhotonViewPreNetDestroy
     {
         public float m_duration = 10.0f;
         private float m_elapsed = float.MaxValue;
@@ -43,6 +43,16 @@ namespace Com.MyCompany.MyGame
             {
                 rbody.AddForce(force, ForceMode.Impulse);
             }
+        }
+
+        public void OnPhotonInstantiate(PhotonMessageInfo info)
+        {
+            ObjManager.Instance.AddPlayerObj(this.gameObject);
+        }
+
+        public void OnPreNetDestroy(PhotonView rootView)
+        {
+            ObjManager.Instance.RemovePlayerObj(this.gameObject);
         }
     }
 }

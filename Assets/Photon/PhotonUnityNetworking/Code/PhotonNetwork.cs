@@ -533,6 +533,10 @@ namespace Photon.Pun
             set
             {
                 NetworkingClient.EnableViewSynchronization = value;
+
+                PhotonLog.LogFormat("===> Client{0} EnableViewSynchronization:{1}",
+                    PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
+                    value);
             }
         }
 

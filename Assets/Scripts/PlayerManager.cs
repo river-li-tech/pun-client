@@ -13,10 +13,11 @@ namespace Com.MyCompany.MyGame
         bool IsFiring = false;
         public float Health = 1f;
         public static GameObject LocalPlayerInstance;
+        public static PlayerManager LocalPlayerManager;
         
         [SerializeField]
         public GameObject PlayerUiPrefab;
-        
+
         #region MonoBehaviour CallBacks
         void Awake()
         {
@@ -32,6 +33,7 @@ namespace Com.MyCompany.MyGame
             if (photonView.IsMine)
             {
                 PlayerManager.LocalPlayerInstance = this.gameObject;
+                LocalPlayerManager = this;
             }
 
             // #Critical
@@ -163,14 +165,14 @@ namespace Com.MyCompany.MyGame
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.L))
+            if (Input.GetKeyDown(KeyCode.R))
             {
-                CreateBall();
+                CreateRoomObj();
             }
 
-            if (Input.GetKeyDown(KeyCode.B))
+            if (Input.GetKeyDown(KeyCode.P))
             {
-                CreateBomb();
+                CreatePlayerObj();
             }
         }
 
@@ -213,12 +215,12 @@ namespace Com.MyCompany.MyGame
         #endregion
 
         #region networked object
-        private void CreateBomb()
+        private void CreatePlayerObj()
         {
-            GameObject obj = PhotonNetwork.Instantiate("Bomb", this.transform.position + new Vector3(0, 2.5f, 0), Quaternion.identity);
-            if (obj != null)
+            GameObject PlayerObj = PhotonNetwork.Instantiate("PlayerObj", this.transform.position + new Vector3(0, 2.5f, 0), Quaternion.identity);
+            if (PlayerObj != null)
             {
-                BombLogic objLogic = obj.GetComponent<BombLogic>();
+                PlayerObjLogic objLogic = PlayerObj.GetComponent<PlayerObjLogic>();
                 if (objLogic != null)
                 {
                     Vector3 force = this.transform.forward * 10.0f;
@@ -227,12 +229,12 @@ namespace Com.MyCompany.MyGame
             }
         }
 
-        private void CreateBall()
+        private void CreateRoomObj()
         {
-            GameObject obj = PhotonNetwork.InstantiateRoomObject("Ball", this.transform.position + new Vector3(0, 2.5f, 0), Quaternion.identity);
-            if (obj != null)
+            GameObject RoomObj = PhotonNetwork.InstantiateRoomObject("RoomObj", this.transform.position + new Vector3(0, 2.5f, 0), Quaternion.identity);
+            if (RoomObj != null)
             {
-                BallLogic objLogic = obj.GetComponent<BallLogic>();
+                RoomObjLogic objLogic = RoomObj.GetComponent<RoomObjLogic>();
                 if (objLogic != null)
                 {
                     Vector3 force = this.transform.forward * 5.0f;

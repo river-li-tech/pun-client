@@ -370,6 +370,16 @@ namespace Photon.Pun
         internal void RebuildControllerCache(bool ownerHasChanged = false)
         {
             //var prevController = this.controller;
+            int oldControllerNr = this.ControllerActorNr;
+            //归还临时托管的控制权
+            if (this.OwnerActorNr != this.ControllerActorNr && this.Owner != null && !this.Owner.IsInactive)
+            {
+                this.ControllerActorNr = this.OwnerActorNr;
+
+                PhotonLog.LogFormat("===> Client:{0} RebuildControllerCache:Giveback viewId:{1} Owner:{2} Controller:{3}->{4}",
+                    PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
+                    this.ViewID, this.OwnerActorNr, oldControllerNr, this.ControllerActorNr);
+            }
 
             // objects without controller and room objects (ownerId 0) check if controller update is needed
             if (this.ControllerActorNr <= 0 || this.Controller == null || this.Controller.IsInactive)
@@ -377,11 +387,19 @@ namespace Photon.Pun
                 if (this.OwnerActorNr > 0 && this.Owner != null && !this.Owner.IsInactive)
                 {
                     this.ControllerActorNr = this.OwnerActorNr;
+
+                    PhotonLog.LogFormat("===> Client:{0} RebuildControllerCache:owner valid viewId:{1} Owner:{2} Controller:{3}->{4}",
+                        PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
+                        this.ViewID, this.OwnerActorNr, oldControllerNr, this.ControllerActorNr);
                 }
                 else
                 {
                     var masterclient = PhotonNetwork.MasterClient;
                     this.ControllerActorNr = masterclient == null || masterclient.IsInactive ? 0 : masterclient.ActorNumber;
+
+                    PhotonLog.LogFormat("===> Client:{0} RebuildControllerCache:set master viewId:{1} Owner:{2} Controller:{3}->{4}",
+                        PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1,
+                        this.ViewID, this.OwnerActorNr, oldControllerNr, this.ControllerActorNr);
                 }
             }
         }

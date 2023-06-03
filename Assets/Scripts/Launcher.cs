@@ -19,7 +19,7 @@ namespace Com.MyCompany.MyGame
         private byte maxPlayerPerRoom = 4;
         private string gameVersion = "1";
         private bool isConnecting = false;
-        JoinRoomType joinType = JoinRoomType.JOIN;
+        public static JoinRoomType joinType = JoinRoomType.JOIN;
 
         [SerializeField] 
         private GameObject controlPanel;
@@ -39,6 +39,9 @@ namespace Com.MyCompany.MyGame
 
         public void Connect()
         {
+            joinType = JoinRoomType.JOIN;
+            PhotonNetwork.EnableViewSynchronization = false;
+
             progressLabel.SetActive(true);
             controlPanel.SetActive(false);
             
@@ -50,12 +53,14 @@ namespace Com.MyCompany.MyGame
             {
                 isConnecting = PhotonNetwork.ConnectUsingSettings();
                 PhotonNetwork.GameVersion = gameVersion;
-                joinType = JoinRoomType.JOIN;
             }
         }
 
         public void Rejoin()
         {
+            joinType = JoinRoomType.REJOIN;
+            PhotonNetwork.EnableViewSynchronization = false;
+
             progressLabel.SetActive(true);
             controlPanel.SetActive(false);
             if (PhotonNetwork.IsConnected)
@@ -66,7 +71,6 @@ namespace Com.MyCompany.MyGame
             {
                 isConnecting = PhotonNetwork.Reconnect();
                 PhotonNetwork.GameVersion = gameVersion;
-                joinType = JoinRoomType.REJOIN;
             }
         }
 
